@@ -13,12 +13,13 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+    <!-- maven plugin versions -->
+    <fabric8.maven.plugin.version>3.1.80.redhat-000022</fabric8.maven.plugin.version>
+
     <!-- configure the versions you want to use here -->
-    <fabric8.version>2.2.170.redhat-000010</fabric8.version>
+    <fabric8.version>2.2.170.redhat-000022</fabric8.version>
     <spring-boot.version>1.4.1.RELEASE</spring-boot.version>
 
-    <!-- maven plugin versions -->
-    <fabric8.maven.plugin.version>3.1.80.redhat-000010</fabric8.maven.plugin.version>
     <maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
     <maven-surefire-plugin.version>2.18.1</maven-surefire-plugin.version>
   </properties>
@@ -46,10 +47,29 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
-
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-spring-boot-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-spring-boot-starter-jaxws</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-cxf-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-cxf-transport</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-script</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-groovy</artifactId>
     </dependency>
 
     <!-- testing -->

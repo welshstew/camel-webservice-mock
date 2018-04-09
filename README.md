@@ -1,58 +1,60 @@
-# Spring-Boot Camel QuickStart
+# camel-webservice-mock
 
-This example demonstrates how you can use Apache Camel with Spring Boot.
+Simple example to show how to mock a SOAP webservice with static/random responses with camel.
 
-The quickstart uses Spring Boot to configure a little application that includes a Camel route that triggers a message every 5th second, and routes the message to a log.
+This project was initially constructed using the camel-springboot-archetype, it is Openshift ready :)
 
-### Building
+```text
+mvn org.apache.maven.plugins:maven-archetype-plugin:2.4:generate \
+  -DarchetypeCatalog=https://maven.repository.redhat.com/ga/io/fabric8/archetypes/archetypes-catalog/2.2.195-redhat-000016/archetypes-catalog-2.2.195.redhat-000016-archetype-catalog.xml \
+  -DarchetypeGroupId=org.jboss.fuse.fis.archetypes \
+  -DarchetypeArtifactId=spring-boot-camel-xml-archetype \
+  -DarchetypeVersion=2.2.195.redhat-000016
+```
 
-The example can be built with
+This set of dependencies were added for cxf and groovy
 
-    mvn clean install
+```xml
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-spring-boot-starter-jaxws</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-cxf-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-cxf-transport</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-script</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-groovy</artifactId>
+    </dependency>
+```
 
-### Running the example in OpenShift
+## SOAP UI
 
-It is assumed that:
-- OpenShift platform is already running, if not you can find details how to [Install OpenShift at your site](https://docs.openshift.com/container-platform/3.3/install_config/index.html).
-- Your system is configured for Fabric8 Maven Workflow, if not you can find a [Get Started Guide](https://access.redhat.com/documentation/en/red-hat-jboss-middleware-for-openshift/3/single/red-hat-jboss-fuse-integration-services-20-for-openshift/)
+Use soapUI to generate a mock webservice and manually construct some responses
 
-The example can be built and run on OpenShift using a single goal:
+![SOAPUI Screenshot](./img/soapui-mock.png "SOAPUI Construct Mock")
 
-    mvn fabric8:deploy
+Then add the responses and the WSDL was added to the project.
 
-When the example runs in OpenShift, you can use the OpenShift client tool to inspect the status
+The main route selects a random numbered response from the classpath.
 
-To list all the running pods:
-
-    oc get pods
-
-Then find the name of the pod that runs this quickstart, and output the logs from the running pods with:
-
-    oc logs <name of pod>
-
-You can also use the openshift [web console](https://docs.openshift.com/container-platform/3.3/getting_started/developers_console.html#developers-console-video) to manage the
-running pods, and view logs and much more.
-
-### Running via an S2I Application Template
-
-Application templates allow you deploy applications to OpenShift by filling out a form in the OpenShift console that allows you to adjust deployment parameters.  This template uses an S2I source build so that it handle building and deploying the application for you.
-
-First, import the Fuse image streams:
-
-    oc create -f https://raw.githubusercontent.com/jboss-fuse/application-templates/GA/fis-image-streams.json
-
-Then create the quickstart template:
-
-    oc create -f https://raw.githubusercontent.com/jboss-fuse/application-templates/GA/quickstarts/spring-boot-camel-template.json
-
-Now when you use "Add to Project" button in the OpenShift console, you should see a template for this quickstart. 
-
-### Integration Testing
-
-The example includes a [fabric8 arquillian](https://github.com/fabric8io/fabric8/tree/v2.2.170.redhat/components/fabric8-arquillian) OpenShift Integration Test. 
-Once the container image has been built and deployed in OpenShift, the integration test can be run with:
-
-    mvn test -Dtest=*KT
-
-The test is disabled by default and has to be enabled using `-Dtest`. Open Source Community documentation at [Integration Testing](https://fabric8.io/guide/testing.html) and [Fabric8 Arquillian Extension](https://fabric8.io/guide/arquillian.html) provide more information on writing full fledged black box integration tests for OpenShift. 
-
+```xml
+<route>
+    <from uri="cxf:bean:simpleServiceEndpoint?dataFormat=MESSAGE"/>
+    <setHeader headerName="randomResponse">
+        <simple>random(1,6)</simple>
+    </setHeader>
+    <setBody>
+        <groovy>this.getClass().getResource( "/response/response${request.headers.randomResponse}.xml" ).text</groovy>
+    </setBody>
+</route>
+```

@@ -1,18 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="
-       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-       http://camel.apache.org/schema/spring       http://camel.apache.org/schema/spring/camel-spring.xsd">
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:cxf="http://camel.apache.org/schema/cxf"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring       http://camel.apache.org/schema/spring/camel-spring.xsd http://camel.apache.org/schema/cxf http://camel.apache.org/schema/cxf/camel-cxf.xsd">
 
-    <!-- You could also define a traditional camel context here -->
-    <!--
+    <!-- Define a traditional camel context here -->
     <camelContext xmlns="http://camel.apache.org/schema/spring">
+
         <route>
-            <from uri="timer://foo?period=1000"/>
-            <setBody><simple>Hello World from camel-contex.xml</simple></setBody>
-            <log message=">>> ${body}"/>
+            <from uri="cxf:bean:simpleServiceEndpoint?dataFormat=MESSAGE"/>
+            <setHeader headerName="randomResponse">
+                <simple>random(1,6)</simple>
+            </setHeader>
+            <setBody>
+                <groovy>this.getClass().getResource( "/response/response${request.headers.randomResponse}.xml" ).text</groovy>
+            </setBody>
         </route>
+
     </camelContext>
-    -->
+
+    <cxf:cxfEndpoint id="simpleServiceEndpoint" address="/simpleService" wsdlURL="classpath:wsdl/simpleService.wsdl" >
+    </cxf:cxfEndpoint>
 </beans>
